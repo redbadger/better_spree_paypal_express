@@ -28,3 +28,15 @@ task :default => 'rspec-rerun:spec'
 
 
 Bundler::GemHelper.install_tasks
+
+Rake::Task[:release].tap do |task|
+  task.clear
+  task.instance_variable_set :@arg_names, nil
+end
+
+desc "Build and release v#{SpreePayPalExpress::VERSION} to Gemfury"
+task :release => :build do
+  sh "curl -F package=@pkg/spree_paypal_express-#{SpreePayPalExpress::VERSION}.gem https://#{ENV.fetch('GEMFURY_TOKEN')}@push.fury.io/#{ENV.fetch('GEMFURY_USERNAME')}/"
+  sh "git tag v#{SpreePayPalExpress::VERSION} -m 'Release #{SpreePayPalExpress::VERSION}'"
+  sh "git push origin v#{SpreePayPalExpress::VERSION}"
+end
